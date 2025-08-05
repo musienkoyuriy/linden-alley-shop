@@ -1,8 +1,5 @@
 import { compare, hash } from 'bcrypt'
-import { nanoid } from 'nanoid'
 import { cookies } from 'next/headers'
-import { db } from '@/db'
-import { users } from '@/db/schema'
 import * as jose from 'jose'
 
 // JWT types

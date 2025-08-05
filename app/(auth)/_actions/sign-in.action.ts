@@ -33,21 +33,14 @@ export async function signInAction({ email, password }: SignInCredentials) {
       };
     }
 
-    const token = await createSession(existingUser.id);
+    const sessionCreated = await createSession(existingUser.id);
 
-    if (!token) {
+    if (!sessionCreated) {
       return {
         error: "Failed to create session",
         success: false,
       };
     }
-
-    cookies().set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-    });
 
     return { success: true };
   } catch (error) {

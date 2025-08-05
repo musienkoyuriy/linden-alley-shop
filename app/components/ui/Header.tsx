@@ -6,6 +6,8 @@ import { getCurrentUser } from "@/app/(auth)/_actions/current-user.action";
 export async function Header() {
   const currentUser = await getCurrentUser();
 
+  console.log(currentUser?.role);
+
   return (
     <>
       <div className="bg-black text-white text-sm py-2 text-center">
