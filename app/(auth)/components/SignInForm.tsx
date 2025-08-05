@@ -27,6 +27,7 @@ export function SignInForm({ goToSignUp, onSuccess }: SignInFormProps) {
 
   async function onSubmit(values: z.infer<typeof SignInSchema>) {
     const result = await signInAction({ email: values.emailOrPhone, password: values.password });
+
     if (!result.success) {
       form.setError("emailOrPhone", { message: result.error });
     } else {

@@ -4,7 +4,7 @@ export type UserDto = {
   lastName: string;
   phone: string;
   email: string;
-  role: string;
+  role: 'user' | 'admin';
 }
 
 export type CreateUserInput = {

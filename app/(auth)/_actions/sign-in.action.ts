@@ -1,10 +1,9 @@
-"use server";
+'use server';
 
 import { createSession, verifyPassword } from "@/lib/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 
 interface SignInCredentials {
   email: string;
@@ -25,7 +24,6 @@ export async function signInAction({ email, password }: SignInCredentials) {
     }
 
     const isPasswordValid = await verifyPassword(password, existingUser.password);
-
     if (!isPasswordValid) {
       return {
         error: "Invalid credentials",
@@ -33,8 +31,7 @@ export async function signInAction({ email, password }: SignInCredentials) {
       };
     }
 
-    const sessionCreated = await createSession(existingUser.id);
-
+    const sessionCreated = await createSession(existingUser.id, existingUser.role);
     if (!sessionCreated) {
       return {
         error: "Failed to create session",

@@ -1,11 +1,12 @@
-import { compare, hash } from 'bcrypt'
+import { compare, hash } from 'bcryptjs'
 import { cookies } from 'next/headers'
 import * as jose from 'jose'
 
 // JWT types
 interface JWTPayload {
-  userId: string
-  [key: string]: string | number | boolean | null | undefined
+  userId: string;
+  userRole: 'user' | 'admin';
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 // Secret key for JWT signing (in a real app, use an environment variable)
@@ -70,10 +71,10 @@ export async function shouldRefreshToken(token: string): Promise<boolean> {
 }
 
 // Create a session using JWT
-export async function createSession(userId: string) {
+export async function createSession(userId: string, userRole: 'user' | 'admin') {
   try {
     // Create JWT with user data
-    const token = await generateJWT({ userId })
+    const token = await generateJWT({ userId, userRole })
 
     // Store JWT in a cookie
     const cookieStore = await cookies()
@@ -97,15 +98,14 @@ export async function createSession(userId: string) {
 // Get current session from JWT
 export async function getSession() {
   try {
-    const cookieStore = await cookies()
+    const cookieStore = cookies()
     const token = cookieStore.get('auth_token')?.value
 
     if (!token) return null
     const payload = await verifyJWT(token)
 
-    return payload ? { userId: payload.userId } : null
+    return payload ? { userId: payload.userId, role: payload.userRole } : null
   } catch (error) {
-    // Handle the specific prerendering error
     if (
       error instanceof Error &&
       error.message.includes('During prerendering, `cookies()` rejects')

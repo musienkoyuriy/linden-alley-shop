@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/app/(auth)/_actions/current-user.action";
 export async function Header() {
   const currentUser = await getCurrentUser();
 
-  console.log(currentUser?.role);
+  const isAdmin = currentUser?.role === 'admin';
 
   return (
     <>
@@ -50,7 +50,15 @@ export async function Header() {
                   Контакти
                 </Link>
               </nav>
+
+              {isAdmin ? (
+                <Link href="/admin" className="text-sm text-black hover:text-gray-600 transition-colors underline">
+                  Адмінка
+                </Link>
+              ) : null}
+
               <AuthSheet currentUser={currentUser} />
+
             </div>
 
             <button className="md:hidden">
