@@ -16,7 +16,7 @@ export async function signUpAction(userData: z.infer<typeof SignUpSchema>) {
   const { email, password, firstName, lastName, phone } = validationResult.data;
 
   try {
-    const user = await createUserUseCase(email, password, firstName, lastName, phone);
+    const user = await createUserUseCase({ email, password, firstName, lastName, phone });
     await createSession(user.id);
 
     return { success: true, message: 'Користувача створено!' };

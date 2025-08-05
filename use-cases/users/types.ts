@@ -6,3 +6,11 @@ export type UserDto = {
   email: string;
   role: string;
 }
+
+export type CreateUserInput = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
