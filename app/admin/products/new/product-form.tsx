@@ -15,7 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form";
 import { Input } from "../../../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
-import { createProduct, updateProduct } from '../actions';
+import { createProduct } from './_actions/create-product.action';
+import { updateProduct } from '../[id]/edit/_actions/update-product.action';
 
 type Category = InferSelectModel<typeof categories>;
 
