@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 export const ProductSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -6,5 +6,7 @@ export const ProductSchema = z.object({
   price: z.number().positive('Price must be a positive number'),
   inStock: z.boolean().default(true),
   categoryId: z.number().positive('Category ID is required'),
+  description: z.string().min(1, 'Description is required').optional(),
   year: z.number().optional(),
+  slug: z.string(),
 });

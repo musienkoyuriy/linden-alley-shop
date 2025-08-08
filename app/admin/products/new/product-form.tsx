@@ -9,14 +9,17 @@ import Image from 'next/image';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { Toaster, toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form";
 import { Input } from "../../../components/ui/input";
+import { Textarea } from "../../../components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
-import { createProduct } from './_actions/create-product.action';
+import { createProductAction } from './_actions/create-product.action';
 import { updateProduct } from '../[id]/edit/_actions/update-product.action';
+import { generateSlug } from '@/lib/utils';
 
 type Category = InferSelectModel<typeof categories>;
 
@@ -32,6 +35,7 @@ const NewProductSchema = z.object({
   category: z.number().min(1, { message: 'Категорія є обов\'язковою' }),
   images: z.array(z.string()).min(1, { message: 'Зображення є обов\'язковим' }),
   year: z.number().min(2018, { message: 'Рік є обов\'язковим' }),
+  description: z.string().min(1, { message: 'Опис є обов\'язковим' }),
 })
 
 type FormFields = z.infer<typeof NewProductSchema>;
@@ -43,6 +47,7 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ categories, product }: ProductFormProps) {
+  const router = useRouter();
   const [imageUrls, setImageUrls] = useState<string[]>(product?.images || []);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -53,6 +58,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
       category: product.category,
       images: product.images,
       year: product.year,
+      description: product.description ?? '',
     } : undefined,
     resolver: zodResolver(NewProductSchema),
   });
@@ -66,14 +72,16 @@ export function ProductForm({ categories, product }: ProductFormProps) {
       title: data.title,
       price: data.price,
       categoryId: data.category,
+      description: data.description,
       images: imageUrls,
       year: data.year,
       inStock: true,
+      slug: generateSlug(data.title),
     }
     const createOrUpdateProductPromise = product ? updateProduct({
       ...newProduct,
       id: product.id,
-    }) : createProduct(newProduct);
+    }) : createProductAction(newProduct);
 
     toast.promise(createOrUpdateProductPromise, {
       loading: product ? 'Оновлення товару...' : 'Створення товару...',
@@ -82,13 +90,23 @@ export function ProductForm({ categories, product }: ProductFormProps) {
     });
 
     try {
-      await createOrUpdateProductPromise;
+      const result = await createOrUpdateProductPromise;
 
-      if (!product) {
-        form.reset();
+      if (result.success) {
+        form.reset({
+          title: '',
+          price: 0,
+          category: 0,
+          images: [],
+          year: new Date().getFullYear(),
+          description: ''
+        });
         setImageUrls([]);
-      }
 
+        if (!product) {
+          router.push('/admin/products');
+        }
+      }
     } catch (error) {
       console.error('Error creating product:', error);
     }
@@ -173,6 +191,20 @@ export function ProductForm({ categories, product }: ProductFormProps) {
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Опис</FormLabel>
+                      <FormControl>
+                        <Textarea rows={5} placeholder="Опис товару" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -332,4 +364,4 @@ export function ProductForm({ categories, product }: ProductFormProps) {
       </div>
     </>
   );
-} 
+}

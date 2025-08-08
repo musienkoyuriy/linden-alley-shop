@@ -25,7 +25,9 @@ export const categories = pgTable('categories', {
 export const products = pgTable('products', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
+  slug: text('slug').notNull().unique(),
   price: integer('price').notNull(),
+  description: text('description'),
   inStock: boolean('in_stock').default(true),
   categoryId: integer('category_id').references(() => categories.id).notNull(),
   year: integer('year'),

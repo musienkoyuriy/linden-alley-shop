@@ -14,8 +14,10 @@ import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form";
 import { Input } from "../../../components/ui/input";
+import { Textarea } from "../../../components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
-import { createProduct } from './_actions/create-product.action';
+import { createProductAction } from './_actions/create-product.action';
+import { generateSlug } from '@/lib/utils';
 
 type Category = InferSelectModel<typeof categories>;
 
@@ -35,6 +37,7 @@ const NewProductSchema = z.object({
   category: z.number().min(1, { message: 'Категорія є обов\'язковою' }),
   images: z.array(z.string()).min(1, { message: 'Зображення є обов\'язковим' }),
   year: z.number().min(2018, { message: 'Рік є обов\'язковим' }),
+  description: z.string().min(1, { message: 'Опис є обов\'язковим' }),
 })
 
 type FormFields = z.infer<typeof NewProductSchema>;
@@ -50,6 +53,7 @@ export function ProductForm({ categories }: ProductFormProps) {
       category: 0,
       images: [],
       year: 2025,
+      description: '',
     },
     resolver: zodResolver(NewProductSchema),
   });
@@ -59,12 +63,14 @@ export function ProductForm({ categories }: ProductFormProps) {
   }, [imageUrls, form]);
 
   const onSubmit = async (data: FormFields) => {
-    const createProductPromise = createProduct({
+    const createProductPromise = createProductAction({
       title: data.title,
       price: data.price,
       categoryId: data.category,
+      description: data.description,
       images: imageUrls,
       year: data.year,
+      slug: generateSlug(data.title),
       inStock: true,
     });
 
@@ -162,6 +168,20 @@ export function ProductForm({ categories }: ProductFormProps) {
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Опис</FormLabel>
+                      <FormControl>
+                        <Textarea rows={5} placeholder="Опис товару" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

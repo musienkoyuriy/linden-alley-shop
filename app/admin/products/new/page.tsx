@@ -9,4 +9,4 @@ export default async function NewProductPage() {
       <ProductForm categories={categories} />
     </div>
   );
-} 
+}
