@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface Product {
   id: string;
@@ -14,25 +15,30 @@ interface CartStore {
   clearCart: () => void;
 }
 
-export const useCartStore = create<CartStore>((set) => ({
-  cart: [],
-  addToCart: (product) =>
-    set((state) => {
-      const existingProduct = state.cart.find((item) => item.id === product.id);
+export const useCartStore = create<CartStore>()(
+  persist((set) => ({
+    cart: [],
+    addToCart: (product) =>
+      set((state) => {
+        const existingProduct = state.cart.find((item) => item.id === product.id);
 
-      if (existingProduct) {
-        return {
-          cart: state.cart.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + product.quantity }
-              : item
-          ),
-        };
-      } else {
-        return { cart: [...state.cart, product] };
-      }
-    }),
-  removeFromCart: (productId) =>
-    set((state) => ({ cart: state.cart.filter((item) => item.id !== productId) })),
-  clearCart: () => set({ cart: [] }),
-}));
+        if (existingProduct) {
+          return {
+            cart: state.cart.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + product.quantity }
+                : item
+            ),
+          };
+        } else {
+          return { cart: [...state.cart, product] };
+        }
+      }),
+    removeFromCart: (productId) =>
+      set((state) => ({ cart: state.cart.filter((item) => item.id !== productId) })),
+    clearCart: () => set({ cart: [] }),
+  }), {
+    name: "cart",
+    storage: createJSONStorage(() => localStorage),
+  })
+);
